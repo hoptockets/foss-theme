@@ -14,7 +14,17 @@
 
 {% set loader_nr = request.loader | default("8")%}
 {% set loader_url = ('img/assets/loaders/loader'~loader_nr~'.gif') %}
-{% set product = request.order ? guest.product_get({"id":request.order}) : null %}
+{% set requested_product_id = request.order ?: request.product %}
+{% set product = null %}
+{% if requested_product_id matches '/^\d+$/' %}
+    {% for category in guest.product_category_get_list.list %}
+        {% for listed_product in category.products %}
+            {% if (listed_product.id ~ '') == (requested_product_id ~ '') %}
+                {% set product = listed_product %}
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
 
 {% block body_class %}order-index{% endblock %}
 {% block breadcrumb %}
@@ -27,10 +37,6 @@
 {% endif %}
 {% endblock %}
 {% block content_before %}{% endblock %}
-
-{% if not product %}
-    {% set product = request.product ? guest.product_get({"id":request.product}) : null %}
-{% endif %}
 
 {% block content %}
 {% if request.order matches '/^\\d+$/' %}

@@ -417,6 +417,7 @@
         const btn   = document.getElementById("domain-check");
         const input = document.querySelector('input[name="domain_name"]');
         const form  = document.getElementById("domain-search-transfer-form");
+        const domainOrderUrl = "{{ 'orderbutton'|link({ 'order': domainProduct.id }) }}";
 
         if (!input || !form) return;
 
@@ -431,7 +432,7 @@
 
             sessionStorage.setItem("namingo_domain", domain);
 
-            window.location.href = "/orderbutton?order=1";
+            window.location.href = domainOrderUrl;
         }
 
         if (btn) {
