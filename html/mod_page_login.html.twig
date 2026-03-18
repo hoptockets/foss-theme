@@ -1,6 +1,7 @@
 {% extends "layout_public.html.twig" %}
 
 {% set company = guest.system_company %}
+{% set sanic_logo_url = 'https://files.sanic.one/api/shares/rjYRa9eU/files/836042b1-d985-4031-a95b-a9e26ef55847' %}
 
 {% block meta_title %}{{ 'Login'|trans }}{% endblock %}
 
@@ -12,7 +13,7 @@
         {% if settings.login_page_show_logo %}
             <div class="text-center mb-4">
                 <a href="{{ settings.login_page_logo_url|default('/') }}" target="_blank" class="navbar-brand">
-                    <img class="navbar-brand-image responsive-logo" height="50px" id="company-logo" src="{{ settings.theme == 'dark' ? company.logo_url_dark : company.logo_url }}" data-logo-light="{{ company.logo_url }}" data-logo-dark="{{ company.logo_url_dark }}" alt="{{ company.name }}" title="{{ company.name }}" />
+                    <img class="navbar-brand-image responsive-logo" height="50px" id="company-logo" src="{{ sanic_logo_url }}" data-logo-light="{{ sanic_logo_url }}" data-logo-dark="{{ sanic_logo_url }}" alt="{{ company.name }}" title="{{ company.name }}" />
                 </a>
             </div>
         {% endif %}

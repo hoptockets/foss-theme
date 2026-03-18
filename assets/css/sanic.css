@@ -143,8 +143,9 @@ body.haus-theme .page-body {
     padding-bottom: 2rem;
 }
 
-/* Nav bars */
-body.haus-theme .navbar {
+/* Nav bars (scoped so Bootstrap utility navs do not break) */
+body.haus-theme .haus-main-nav,
+body.haus-theme .haus-sub-nav {
     border: 1px solid var(--line);
     border-radius: 18px;
     margin-top: 0.7rem;
@@ -153,9 +154,25 @@ body.haus-theme .navbar {
     box-shadow: 0 12px 50px rgba(0, 0, 0, 0.35);
 }
 
+body.haus-theme .haus-sub-nav {
+    margin-top: 0.45rem;
+}
+
 body.haus-theme .navbar-expand-md {
     border: none;
     background: transparent;
+}
+
+body.haus-theme .sanic-announcement {
+    border-radius: 12px;
+    margin-top: 0.5rem;
+    box-shadow: none;
+}
+
+body.haus-theme .sanic-announcement .container-xl {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
 }
 
 body.haus-theme .navbar-brand,
@@ -636,7 +653,8 @@ body.haus-theme .th-go:hover {
 }
 
 @media (max-width: 980px) {
-    body.haus-theme .navbar {
+    body.haus-theme .haus-main-nav,
+    body.haus-theme .haus-sub-nav {
         border-radius: 14px;
     }
 
