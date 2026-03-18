@@ -1,0 +1,109 @@
+{% if product.addons|length > 0 %}
+<h5 class="mt-4 mb-3"><strong>{{ 'Addons & extras'|trans }}</strong></h5>
+
+<div class="card mb-3">
+  <div class="list-group list-group-flush">
+
+    {% for addon in product.addons %}
+    <div class="list-group-item">
+      <div class="row align-items-center">
+
+        {% if addon.icon_url %}
+        <div class="col-auto">
+          <img src="{{ addon.icon_url }}" alt="" width="42" class="rounded" />
+        </div>
+        {% endif %}
+
+        <div class="col">
+          <div class="fw-bold">{{ addon.title }}</div>
+          <div class="text-secondary small">
+            {{ addon.description|markdown }}
+          </div>
+        </div>
+
+        <div class="col-12 col-md-auto mt-3 mt-md-0">
+          <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-start justify-content-md-end gap-2 gap-md-3">
+
+            <div class="text-start text-md-end" style="min-width: 110px;">
+              {% if addon.pricing.type is same as('once') %}
+                <span class="badge bg-success text-success-fg">
+                  {{ (addon.pricing.once.price + addon.pricing.once.setup) | money_convert }}
+                </span>
+              {% elseif addon.pricing.type is same as('free') %}
+                <span class="badge bg-success text-success-fg">
+                  {{ 0 | money_convert }}
+                </span>
+              {% elseif addon.pricing.type is same as('recurrent') %}
+                {% set periods = guest.system_periods %}
+                <select class="form-select form-select-sm"
+                        style="min-width: 140px; max-width: 100%;"
+                        name="addons[{{ addon.id }}][period]">
+                  {% for code, prices in addon.pricing.recurrent %}
+                    {% if prices.enabled %}
+                    <option value="{{ code }}">
+                      {{ prices.price | money_convert }}
+                      {% if prices.setup != '0.00' %}
+                        + {{ prices.setup | money_convert }} {{ 'setup'|trans }}
+                      {% endif %}
+                      ({{ periods[code] }})
+                    </option>
+                    {% endif %}
+                  {% endfor %}
+                </select>
+              {% endif %}
+            </div>
+
+            <input type="hidden" name="addons[{{ addon.id }}][selected]" value="0">
+
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input addon-switch"
+                     type="checkbox"
+                     role="switch"
+                     id="addon_{{ addon.id }}_switch"
+                     name="addons[{{ addon.id }}][selected]"
+                     value="1"
+                     data-label="addon_label_{{ addon.id }}">
+              <label class="form-check-label small mb-0"
+                     id="addon_label_{{ addon.id }}"
+                     for="addon_{{ addon.id }}_switch">
+                {{ 'Add'|trans }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% block js %}
+{% autoescape "js" %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.addon-switch').forEach(function (el) {
+    var label = document.getElementById(el.dataset.label);
+
+    function update() {
+        if (el.checked) {
+          label.textContent = "{{ 'Added'|trans }}";
+          label.classList.remove('text-muted');
+          label.classList.add('text-success');
+          label.classList.add('fw-semibold');
+        } else {
+          label.textContent = "{{ 'Add'|trans }}";
+          label.classList.remove('text-success');
+          label.classList.add('text-muted');
+          label.classList.remove('fw-semibold');
+        }
+    }
+
+    el.addEventListener('change', update);
+    update();
+  });
+});
+</script>
+{% endautoescape %}
+{% endblock %}
+{% endif %}

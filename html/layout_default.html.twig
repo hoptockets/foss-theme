@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="{{ guest.system_locale|replace({'_': '-'}) }}"{% if guest.system_locale in ['ar_EG', 'ar_SA', 'he_IL'] %} {{ 'dir="rtl"'| raw}}{% endif %} data-bs-theme="{{ settings.theme|default('light') }}"{% if settings.theme_color_enabled %} data-bs-theme-primary="{% if settings.theme_color == 1 %}primary{% elseif settings.theme_color == 2 %}purple{% elseif settings.theme_color == 3 %}pink{% elseif settings.theme_color == 4 %}red{% elseif settings.theme_color == 5 %}orange{% elseif settings.theme_color == 6 %}yellow{% elseif settings.theme_color == 7 %}green{% elseif settings.theme_color == 8 %}teal{% else %}indigo{% endif %}"{% endif %}>
+<head>
+    <meta charset="utf-8">
+    <title>{{ settings.meta_title_prefix }} {% block meta_title %}{% endblock %} {{ settings.meta_title_suffix }}</title>
+
+    <meta property="bb:url" content="{{ constant('SYSTEM_URL') }}">
+    <meta property="bb:client_area" content="{{ '/'|link }}">
+    <meta name="csrf-token" content="{{ CSRFToken }}">
+
+    <meta name="description" content="{% block meta_description %}{{ settings.meta_description }}{% endblock %}">
+    <meta name="keywords" content="{{ settings.meta_keywords }}">
+    <meta name="robots" content="{{ settings.meta_robots }}">
+    <meta name="author" content="{{ settings.meta_author }}">
+    <meta name="generator" content="FOSSBilling">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% block opengraph %}{% endblock %}
+    <link href="{% if guest.system_locale in ['ar_EG', 'ar_SA', 'he_IL'] %}{{ 'css/tabler.rtl.min.css' | asset_url }}{% else %}{{ 'css/tabler.min.css' | asset_url }}{% endif %}" rel="stylesheet"/>
+    <link href="{% if guest.system_locale in ['ar_EG', 'ar_SA', 'he_IL'] %}{{ 'css/tabler-flags.rtl.min.css' | asset_url }}{% else %}{{ 'css/tabler-flags.min.css' | asset_url }}{% endif %}" rel="stylesheet"/>
+    <link href="{% if guest.system_locale in ['ar_EG', 'ar_SA', 'he_IL'] %}{{ 'css/tabler-payments.rtl.min.css' | asset_url }}{% else %}{{ 'css/tabler-payments.min.css' | asset_url }}{% endif %}" rel="stylesheet"/>
+    <link href="{% if guest.system_locale in ['ar_EG', 'ar_SA', 'he_IL'] %}{{ 'css/tabler-themes.rtl.min.css' | asset_url }}{% else %}{{ 'css/tabler-themes.min.css' | asset_url }}{% endif %}" rel="stylesheet"/>
+    <link href="{% if guest.system_locale in ['ar_EG', 'ar_SA', 'he_IL'] %}{{ 'css/tabler-vendors.rtl.min.css' | asset_url }}{% else %}{{ 'css/tabler-vendors.min.css' | asset_url }}{% endif %}" rel="stylesheet"/>
+    <link href="{{ 'css/sanic.css' | asset_url }}" rel="stylesheet"/>
+    <link href="{{ 'css/inter.css' | asset_url }}" rel="stylesheet"/>
+    {% include 'custom/head.extra.twig' ignore missing %}
+
+    <link rel="shortcut icon" href="{{ guest.system_company.favicon_url }}">
+
+    {{ "Api/API.js" | library_url | script_tag }}
+    <script src="{{ 'js/atrix.js' | asset_url }}"></script>
+    {% block head %}{% endblock %}
+    {% block js %}{% endblock %}
+</head>
+
+<body class="haus-theme {% block body_class %}{% endblock %}">
+<div class="haus-fx">
+  <div class="haus-scan"></div>
+  <div class="haus-noise"></div>
+</div>
+{% block body %}
+{% if not client and settings.require_login %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const publicPaths = [
+                '/news',
+                '/tos',
+                '/privacy-policy'
+            ];
+            const currentPath = window.location.pathname;
+
+            const isAllowed = publicPaths.some(path => currentPath.startsWith(path));
+            if (!isAllowed) {
+                window.location.href = '{{ "login"|link }}';
+            }
+        });
+    </script>
+{% endif %}
+
+{% if client %}
+    {% set profile = client.profile_get %}
+{% endif %}
+{% set company = guest.system_company %}
+
+{% if settings.theme == 'dark' %}
+    {% set logo_url =  company.logo_url_dark %}
+{% else %}
+    {% set logo_url =  company.logo_url %}
+{% endif %}
+<div class="page">
+      {% if settings.announcement_bar_enabled %}
+      <header class="navbar navbar-expand-md d-print-none bg-{% if settings.announcement_bar_color == 1 %}primary{% elseif settings.announcement_bar_color == 2 %}purple{% elseif settings.announcement_bar_color == 3 %}red{% elseif settings.announcement_bar_color == 4 %}orange{% elseif settings.announcement_bar_color == 5 %}yellow{% else %}green{% endif %} text-primary-fg border-bottom-0">
+        <div class="container-xl ml-3">
+          <strong>{{ settings.announcement_bar_text }}</strong>
+        </div>
+      </header>
+      {% endif %}       
+      <header class="navbar navbar-expand-md navbar-light d-print-none{% if settings.announcement_bar_enabled %} border-top-0{% endif %}">
+        <div class="container-xl">
+          <button class="navbar-toggler me-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="navbar-brand p-0 me-auto">
+            {% if logo_url and settings.show_company_logo %}
+            <a class="navbar-brand" href="{{ '/'|link }}">
+              <img id="company-logo" src="{{ settings.theme == 'dark' ? company.logo_url_dark : company.logo_url }}" data-logo-light="{{ company.logo_url }}" data-logo-dark="{{ company.logo_url_dark }}" alt="{{ company.name }}" title="{{ company.name }}" class="navbar-brand-image responsive-logo">
+            </a>
+            {% else %}
+            <a class="navbar-brand" href="{{ '/'|link }}">
+              <span>{{ company.name }}</span>
+            </a>
+            {% endif %}
+          </div>
+          <div class="navbar-nav flex-row ms-auto order-md-last">
+            <div class="nav-item d-md-flex me-1 me-sm-2 me-md-3">
+              <div class="btn-list d-flex align-items-center gap-2">
+                {% set languages = guest.extension_languages(true) %}
+                {% if languages|length > 1 %}
+                {% set currentLang = guest.system_locale %}
+                {% set countryCode = currentLang | slice(3, 2) %}
+                <div class="dropdown small-dropdown">
+                    <a href="#" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-label="Language">
+                    <span class="flag flag-country-{{ countryCode | lower }}"></span>
+                      <span class="ms-2 d-none d-sm-inline">
+                      {% for lang in languages %}
+                        {% if lang.locale == currentLang %}
+                          {% set parts = lang.title|split(' (') %}
+                          {{ parts|length > 1 ? parts|slice(0, -1)|join(' (') : lang.title }}
+                        {% endif %}
+                      {% endfor %}
+                      </span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end language-selector">
+                        {% for lang in languages %}
+                        {% set countryCode = lang.locale | slice(3, 2) %}
+                        {% if lang != currentLang %}
+                        <a href="javascript:;" class="dropdown-item language_selector" data-lang="{{ lang.locale }}"><span class="flag flag-country-{{ countryCode | lower }}"></span>{% set parts = lang.title|split(' (') %}{{ parts|length > 1 ? parts|slice(0, -1)|join(' (') : lang.title }}</a>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% set currencies = guest.currency_get_pairs %}
+                {% if currencies|length > 1 %}
+                <div class="dropdown small-dropdown">
+                    <select id="currency" name="currency" class="currency_selector form-select nav-control w-auto">
+                        {% set selected = guest.cart_get_currency.code %}
+                        {% for code,title in currencies %}
+                        <option value="{{ code }}" class="currency_{{ code }}"{% if code == selected %} selected="selected"{% endif %}>{{ code }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                {% if not client %}
+                <div class="d-none d-md-inline-flex gap-2">
+                    <a href="{{ 'login'|link }}" class="btn btn-primary">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"></path>
+                        <path d="M20 12h-13l3 -3m0 6l-3 -3"></path>
+                      </svg>
+                      {{ 'Login'|trans }}
+                    </a>
+                    <a href="{{ 'signup'|link }}" class="btn btn-secondary">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"></path>
+                        <path d="M16 19h6"></path>
+                        <path d="M19 16v6"></path>
+                        <path d="M6 21v-2a4 4 0 0 1 4 -4h4"></path>
+                      </svg>
+                      {{ 'Register'|trans }}
+                    </a>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="d-flex me-1 me-sm-2 me-md-3 gap-1 gap-sm-2">
+              <a href="?theme=dark" class="nav-link px-0 hide-theme-dark js-theme-toggler" title="Enable dark mode" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                    <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+                  </svg>
+              </a>
+              <a href="?theme=light" class="nav-link px-0 hide-theme-light js-theme-toggler" title="Enable light mode" data-bs-toggle="tooltip" data-bs-placement="bottom">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+                    <path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" />
+                    <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+                  </svg>
+              </a>
+            </div>
+            {% if settings.top_menu_signout %}
+            {% if client %}
+            <div class="nav-item dropdown">
+              <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+                <span class="avatar bg-green-lt">{{ profile.first_name|slice(0, 2)|upper }}</span>
+                <div class="d-none d-xl-block ps-2">
+                  {% if profile.company %}
+                      <div>{{ profile.first_name }} {{ profile.last_name }}</div>
+                      <div class="mt-1 small text-secondary">({{ profile.company }})</div>
+                  {% else %}
+                      <div>{{ profile.first_name }} {{ profile.last_name }}</div>
+                      {% if settings.sidebar_balance_enabled and client %}
+                        <div class="mt-1 small text-secondary">{{ profile.balance | money(profile.currency) }}</div>
+                      {% endif %}
+                  {% endif %}
+                </div>
+              </a>
+              <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <a href="{{ 'client/profile'|link }}" class="dropdown-item">{{ 'Profile'|trans }}</a>
+                <a href="{{ '/client/balance'|link }}" class="dropdown-item">{{ 'Wallet'|trans }}</a>
+                <a href="{{ '/email'|link }}" class="dropdown-item">{{ 'Emails'|trans }}</a>
+                <a href="{{ 'client/logout'|link }}" class="dropdown-item">{{ 'Sign out'|trans }}</a>
+              </div>
+            </div>
+            {% endif %}
+            {% endif %}
+          </div>
+        </div>
+      </header>
+      <header class="navbar-expand-md">
+        <div class="collapse navbar-collapse" id="navbar-menu">
+          <div class="navbar">
+            <div class="container-xl">
+              <div class="row flex-column flex-md-row flex-fill align-items-center">
+                <div class="col">
+                  <ul class="navbar-nav">
+                    {% if settings.top_menu_dashboard %}
+                    <li class="nav-item{% if request._url == '/' %} active{% endif %}">
+                      <a class="nav-link" href="{{ ''|link }}">
+                        {% if client %}
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 4h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1" /><path d="M5 16h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1" /><path d="M15 12h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1" /><path d="M15 4h4a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1v-2a1 1 0 0 1 1 -1" /></svg>
+                        </span>
+                        <span class="nav-link-title"> {{ 'Dashboard'|trans }} </span>
+                        {% else %}
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l-2 0l9 -9l9 9l-2 0" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                        </span>
+                        <span class="nav-link-title"> {{ 'Home'|trans }} </span>
+                        {% endif %}
+                      </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% if settings.top_menu_order %}
+                    <li class="nav-item{% if request._url == '/order' or request._url starts with '/orderbutton' %} active{% endif %}">
+                      <a class="nav-link" href="{{ '/order'|link }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 19a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M15 19a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M17 17h-11v-14h-2" /><path d="M6 5l14 1l-1 7h-13" /></svg>
+                        </span>
+                        <span class="nav-link-title"> {{ 'Order'|trans }} </span>
+                      </a>
+                    </li>
+                    {% endif %}
+
+                    {% if client %}
+                    <li class="nav-item{% if request._url starts with '/order/service' %} active{% endif %}">
+                      <a class="nav-link" href="{{ '/order/service'|link }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" /><path d="M12 12l8 -4.5" /><path d="M12 12l0 9" /><path d="M12 12l-8 -4.5" /><path d="M16 5.25l-8 4.5" /></svg>
+                        </span>
+                        <span class="nav-link-title"> {{ 'Services'|trans }} </span>
+                      </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% if client %}
+                    <li class="nav-item{% if request._url starts with '/invoice' %} active{% endif %}">
+                      <a class="nav-link" href="{{ '/invoice'|link }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" /><path d="M9 7l1 0" /><path d="M9 13l6 0" /><path d="M13 17l2 0" /></svg>
+                        </span>
+                        <span class="nav-link-title"> {{ 'Invoices'|trans }} </span>
+                      </a>
+                    </li>
+                    {% endif %}
+
+                    {% if client %}
+                    <li class="nav-item{% if
+                        request._url starts with '/support'
+                        and not (request._url starts with '/support/contact-us')
+                        and not (request._url starts with '/support/kb')
+                    %}
+                     active{% endif %}">
+                      <a class="nav-link" href="{{ '/support'|link }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M15 15l3.35 3.35" /><path d="M9 15l-3.35 3.35" /><path d="M5.65 5.65l3.35 3.35" /><path d="M18.35 5.65l-3.35 3.35" /></svg>
+                        </span>
+                        <span class="nav-link-title"> {{ 'Support'|trans }} </span>
+                      </a>
+                    </li>
+                    {% endif %}
+
+                    {% if guest.extension_is_on({"mod":"news"}) %}
+                    <li class="nav-item{% if request._url starts with '/news' %} active{% endif %}">
+                      <a class="nav-link" href="{{ '/news'|link }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11" /><path d="M8 8l4 0" /><path d="M8 12l4 0" /><path d="M8 16l4 0" /></svg>
+                        </span>
+                        <span class="nav-link-title"> {{ 'News'|trans }} </span>
+                      </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% if guest.support_kb_enabled() %}
+                    <li class="nav-item{% if request._url starts with '/support/kb' %} active{% endif %}">
+                      <a class="nav-link" href="{{ 'support/kb'|link }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block"
+                          >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6l0 13" /><path d="M12 6l0 13" /><path d="M21 6l0 13" /></svg>
+                         </span>
+                        <span class="nav-link-title"> {{ 'Knowledge Base'|trans }} </span>
+                      </a>
+                    </li>
+                    {% endif %}
+
+                    {% if guest.extension_is_on({ "mod": "whois" }) %}
+                    <li class="nav-item{% if request._url starts with '/whois' %} active{% endif %}">
+                      <a class="nav-link" href="{{ '/whois'|link }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+                        </span>
+                        <span class="nav-link-title"> {{ 'Domain Lookup'|trans }} </span>
+                      </a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item{% if request._url starts with '/support/contact-us' %} active{% endif %}">
+                      <a class="nav-link" href="{{ '/support/contact-us'|link }}">
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 9h8" /><path d="M8 13h6" /><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12" /></svg>
+                        </span>
+                        <span class="nav-link-title"> {{ 'Contact us'|trans }} </span>
+                      </a>
+                    </li>
+
+                  </ul>
+                </div>
+                {% if not client %}
+                <div class="col col-md-auto">
+                  <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#profile" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false"
+                      >
+                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="svg-icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+                        </span>
+                        <span class="nav-link-title">{{ 'Profile'|trans }}</span>
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href="{{ '/login'|link }}">{{ 'Login'|trans }}</a>
+                        <a class="dropdown-item" href="{{ '/signup'|link }}">{{ 'Register'|trans }}</a>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <div class="page-wrapper">
+        {% if settings.show_breadcrumb and request._url != '/' %}
+        <div class="page-header d-print-none" aria-label="Page header">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                {% block breadcrumbs %}
+                <ol class="breadcrumb" aria-label="{{ 'breadcrumb'|trans }}">
+                  <li class="breadcrumb-item"><a href="{{ '/'|link }}">{{ 'Home'|trans }}</a></li>
+                    {% block breadcrumb %}
+                    <li class="breadcrumb-item active" aria-current="page"><a href="#">{{ 'Dashboard'|trans }}</a></li>
+                    {% endblock %}
+                </ol>
+                {% endblock %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="page-body">
+          <div class="container-xl">
+            {% block content_before %}{% endblock %}
+
+            {% block content %}{% endblock %}
+
+            {{ include('partial_message.html.twig') }}
+
+            {% block content_after %}{% endblock %}
+            <div id="push"></div>
+          </div>
+        </div>
+        
+        {% if settings.footer_enabled %}
+        <footer class="footer footer-transparent d-print-none">
+          <div class="container-xl">
+            <div class="row text-center align-items-center flex-row-reverse">
+              <div class="col-lg-auto ms-lg-auto">
+                <ul class="list-inline list-inline-dots mb-0">
+                  {% if settings.footer_link_1_enabled %}
+                  <li class="list-inline-item">
+                      {% if 'http://' in settings.footer_link_1_page or  'https://' in settings.footer_link_1_page %}
+                          <a href="{{ settings.footer_link_1_page }}" class="link-secondary">{{ settings.footer_link_1_title }}</a>
+                      {% else %}
+                          <a href="{{ settings.footer_link_1_page | link }}" class="link-secondary">{{ settings.footer_link_1_title }}</a>
+                      {% endif %}
+                  </li>
+                  {% endif %}
+                  {% if settings.footer_link_2_enabled %}
+                  <li class="list-inline-item">
+                      {% if 'http://' in settings.footer_link_2_page or  'https://' in settings.footer_link_2_page %}
+                          <a href="{{ settings.footer_link_2_page }}" class="link-secondary">{{ settings.footer_link_2_title }}</a>
+                      {% else %}
+                          <a href="{{ settings.footer_link_2_page | link }}" class="link-secondary">{{ settings.footer_link_2_title }}</a>
+                      {% endif %}
+                  </li>
+                  {% endif %}
+                  {% if settings.footer_link_3_enabled %}
+                  <li class="list-inline-item">
+                      {% if 'http://' in settings.footer_link_3_page or  'https://' in settings.footer_link_3_page %}
+                          <a href="{{ settings.footer_link_3_page }}" class="link-secondary">{{ settings.footer_link_3_title }}</a>
+                      {% else %}
+                          <a href="{{ settings.footer_link_3_page | link }}" class="link-secondary">{{ settings.footer_link_3_title }}</a>
+                      {% endif %}
+                  </li>
+                  {% endif %}
+                  {% if settings.footer_link_4_enabled %}
+                  <li class="list-inline-item">
+                      {% if 'http://' in settings.footer_link_4_page or  'https://' in settings.footer_link_4_page %}
+                          <a href="{{ settings.footer_link_4_page }}" class="link-secondary">{{ settings.footer_link_4_title }}</a>
+                      {% else %}
+                          <a href="{{ settings.footer_link_4_page | link }}" class="link-secondary">{{ settings.footer_link_4_title }}</a>
+                      {% endif %}
+                  </li>
+                  {% endif %}
+                  {% if settings.footer_link_5_enabled %}
+                  <li class="list-inline-item">
+                      {% if 'http://' in settings.footer_link_5_page or  'https://' in settings.footer_link_5_page %}
+                          <a href="{{ settings.footer_link_5_page }}" class="link-secondary">{{ settings.footer_link_5_title }}</a>
+                      {% else %}
+                          <a href="{{ settings.footer_link_5_page | link }}" class="link-secondary">{{ settings.footer_link_5_title }}</a>
+                      {% endif %}
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+              <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+                <ul class="list-inline list-inline-dots mb-0">
+                  <li class="list-inline-item">
+                    &copy; {{ now|format_date(pattern='yyyy') }} {{ settings.footer_signature | default(company.signature) }}
+                    {% if company.bank_info_pagebottom == 1 %}
+                        <br/>
+                        <b>{{'Payment Information'|trans}}</b> - {{'Bank Name'|trans}}: {{ company.bank_name }} | {{'BIC / SWIFT Code'|trans}}: {{ company.bic }} | {{'Account Number'|trans}}: {{ company.account_number }}
+                    {% endif %}
+                  </li>
+                  {% if guest.extension_is_on({"mod":'branding'}) %}
+                  <li class="list-inline-item">
+                    <span>{{ 'Powered by the'|trans }}&nbsp;</span>
+                    <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                     href="https://fossbilling.org" title="Billing Software"
+                     target="_blank">{{ 'FOSSBilling Community'|trans }}</a>
+                  </li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </footer>
+        {% endif %}
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1070;"></div>
+        {% if settings.footer_to_top_enabled %}
+            <a href="#top" class="position-fixed btn btn-primary bottom-0 end-0 m-3">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M18 11l-6 -6" /><path d="M6 11l6 -6" /></svg> {{ 'Top'|trans }}</a>
+        {% endif %}
+        <div class="wait" style="display:none" onclick="$(this).hide();">
+            <div class="spinner-border"
+                 style="width: 4rem; height: 4rem; top: 50%; left: 50%; position: fixed; z-index: 999"></div>
+        </div>
+        <noscript>{{ "NOTE: Many features on FOSSBilling require Javascript and cookies. You can enable both in your browser's preference settings."|trans }}</noscript>
+
+        {% endblock %}
+
+        {% if settings.inject_javascript %}
+            {{ settings.inject_javascript | raw }}
+        {% endif %}
+        {{ include('partial_pending_messages.html.twig', ignore_missing: true) }}
+        {% if guest.extension_is_on({ "mod": "cookieconsent" }) %}
+            {{ include('mod_cookieconsent_index.html.twig', ignore_missing: true) }}
+        {% endif %}
+    </div>
+</div>
+<script src="{{ 'js/tide.js' | asset_url }}"></script>
+
+</body>
+</html>

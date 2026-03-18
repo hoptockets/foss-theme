@@ -1,0 +1,98 @@
+{% extends request.ajax ? "layout_blank.html.twig" : "layout_default.html.twig" %}
+
+{% import "macro_functions.html.twig" as mf %}
+
+{% block meta_title %}{{ 'Order'|trans }}{% endblock %}
+
+{% set loader_nr = request.loader | default("8")%}
+{% set loader_url = ('img/assets/loaders/loader'~loader_nr~'.gif') %}
+
+{% block body_class %}order-index{% endblock %}
+{% block breadcrumb %}
+    <li class="active breadcrumb-item" aria-current="page">{{ 'Order'|trans }}</li>
+{% endblock %}
+{% block content_before %}{% endblock %}
+
+{% block content %}
+{% set cart = guest.cart_get %}
+<section class="th-section">
+  <div class="th-card">
+    <div class="th-hero-main">
+      <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+        <div>
+          <div class="th-kicker">Managed hosting / platform operations</div>
+          <h1 class="th-h1">Sanic One <span class="grad">Built for Business</span></h1>
+          <p class="th-lead">
+            {{ 'Choose the service stack that fits your current stage, then scale without changing platform DNA.'|trans }}
+          </p>
+          <div class="th-actions">
+            <a href="{{ 'support/contact-us'|link }}" class="th-btn primary">{{ 'Request support'|trans }}</a>
+            <a href="{{ 'orderbutton?checkout=1'|link }}" class="th-btn">
+              {{ 'View Cart'|trans }} ({{ cart.items | length }})
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="th-metrics">
+        <div class="th-metric">
+          <div class="n">05</div>
+          <div class="l">{{ 'Team members'|trans }}</div>
+        </div>
+        <div class="th-metric">
+          <div class="n">06</div>
+          <div class="l">{{ 'Core services'|trans }}</div>
+        </div>
+        <div class="th-metric">
+          <div class="n">24/7</div>
+          <div class="l">{{ 'Support mindset'|trans }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% for category in guest.product_category_get_list.list %}
+<section class="th-section">
+  <div class="th-section-head">
+    <div>
+      <h2 class="th-h2">{{ category.title }}</h2>
+      {% if category.description %}
+      <p class="th-sub">{{ category.description|striptags }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="th-grid">
+    {% for product in category.products|sort((a, b) => a.priority <=> b.priority) %}
+    <article class="th-item">
+      <div class="th-item-top">
+        <div class="th-tag">{{ product.type|upper }}</div>
+        <span class="th-badge">{{ 'Live'|trans }}</span>
+      </div>
+      <div class="th-item-body">
+        <h3>{{ product.title }}</h3>
+        {% if product.description %}
+        <p>{{ product.description|striptags|slice(0, 160) }}{% if product.description|length > 160 %}...{% endif %}</p>
+        {% else %}
+        <p>{{ 'Production-ready service configuration with onboarding support and real humans behind operations.'|trans }}</p>
+        {% endif %}
+      </div>
+      <div class="th-item-foot">
+        <div class="th-meta">
+          {% if product.type != 'domain' and product.price_starting_from is defined and product.price_starting_from is not empty %}
+            {{ 'From'|trans }} {{ product.price_starting_from|money_convert }}
+          {% else %}
+            {{ 'Custom pricing lane'|trans }}
+          {% endif %}
+        </div>
+        <a href="{{ ('/order/' ~ product.slug) | link }}" class="th-go">{{ 'Choose'|trans }}</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% endblock %}
+
+{% block js %}{% endblock %}

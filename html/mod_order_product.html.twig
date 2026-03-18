@@ -1,0 +1,29 @@
+{% set url = request._url|default('') %}
+{% set parts = url|split('/') %}
+{% set last = parts|last %}
+
+{% set is_id = last matches '/^\\d+$/' %}
+
+{# if slug, try to fetch product by slug and use its id #}
+{% if not is_id %}
+  {% set p = guest.product_get({'slug': last}) %}
+  {% set order_id = p.id|default(null) %}
+{% else %}
+  {% set order_id = last %}
+{% endif %}
+
+{% block js %}
+{% autoescape "js" %}
+<script>
+(function () {
+  var orderId = {{ order_id is not null ? order_id : 'null' }};
+
+  if (orderId !== null) {
+    window.location.replace('/orderbutton?order=' + orderId);
+  } else {
+    window.location.replace('/');
+  }
+})();
+</script>
+{% endautoescape %}
+{% endblock %}

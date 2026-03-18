@@ -1,0 +1,668 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;700;800;900&family=Montserrat:wght@700;800;900&display=swap');
+
+/* SANIC / HAUS visual layer for FOSSBilling */
+:root {
+    --bg0: #06070b;
+    --bg1: #0a0f1f;
+    --ink: #ecf4ff;
+    --muted: #9caad0;
+    --muted2: #6e7a9a;
+    --line: rgba(236, 244, 255, 0.12);
+    --line2: rgba(236, 244, 255, 0.22);
+    --glass: rgba(10, 14, 26, 0.62);
+    --glass2: rgba(10, 14, 26, 0.86);
+    --shadow: 0 30px 110px rgba(0, 0, 0, 0.55);
+    --cyan: #35dbff;
+    --lime: #b5ff5a;
+    --mag: #d68bff;
+    --amber: #ffb86b;
+    --red: #ff4d6d;
+    --r: 18px;
+    --r2: 26px;
+    --max: 1180px;
+    --scan-o: 0.2;
+    --scan-d: 8s;
+    --noise-o: 0.14;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+body.haus-theme {
+    margin: 0;
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--bg0), var(--bg1));
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    line-height: 1.55;
+    font-feature-settings: "cv03", "cv04", "cv11";
+}
+
+body.haus-theme a {
+    color: inherit;
+}
+
+body.haus-theme h1,
+body.haus-theme h2,
+body.haus-theme h3,
+body.haus-theme h4,
+body.haus-theme h5,
+body.haus-theme h6,
+body.haus-theme .h1,
+body.haus-theme .h2,
+body.haus-theme .h3 {
+    font-family: Montserrat, Inter, sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+/* Full-screen ambience */
+.haus-fx {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+}
+
+.haus-scan {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(to bottom,
+            rgba(255, 255, 255, 0.04) 0px,
+            rgba(255, 255, 255, 0.04) 1px,
+            rgba(0, 0, 0, 0) 3px,
+            rgba(0, 0, 0, 0) 6px);
+    mix-blend-mode: overlay;
+    opacity: var(--scan-o);
+    animation: scan var(--scan-d) linear infinite;
+}
+
+.haus-noise {
+    position: absolute;
+    inset: -20%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.38'/%3E%3C/svg%3E");
+    opacity: var(--noise-o);
+    mix-blend-mode: overlay;
+    animation: noise 10s steps(6) infinite;
+}
+
+@keyframes scan {
+    from {
+        transform: translateY(-2%);
+    }
+
+    to {
+        transform: translateY(2%);
+    }
+}
+
+@keyframes noise {
+    0% {
+        transform: translate(0, 0);
+    }
+
+    20% {
+        transform: translate(-2%, 1%);
+    }
+
+    40% {
+        transform: translate(1%, -2%);
+    }
+
+    60% {
+        transform: translate(2%, 2%);
+    }
+
+    80% {
+        transform: translate(-1%, 2%);
+    }
+
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+/* Main layout primitives */
+body.haus-theme .container-xl {
+    max-width: var(--max);
+}
+
+body.haus-theme .page,
+body.haus-theme .page-wrapper,
+body.haus-theme .page-body {
+    background: transparent;
+}
+
+body.haus-theme .page-body {
+    padding-top: 1.1rem;
+    padding-bottom: 2rem;
+}
+
+/* Nav bars */
+body.haus-theme .navbar {
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    margin-top: 0.7rem;
+    background: linear-gradient(180deg, rgba(10, 14, 26, 0.92), rgba(10, 14, 26, 0.58));
+    backdrop-filter: blur(18px);
+    box-shadow: 0 12px 50px rgba(0, 0, 0, 0.35);
+}
+
+body.haus-theme .navbar-expand-md {
+    border: none;
+    background: transparent;
+}
+
+body.haus-theme .navbar-brand,
+body.haus-theme .nav-link,
+body.haus-theme .dropdown-item {
+    letter-spacing: 0.06em;
+}
+
+body.haus-theme .nav-link {
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--muted);
+}
+
+body.haus-theme .nav-link:hover,
+body.haus-theme .nav-item.active .nav-link,
+body.haus-theme .dropdown-item:hover {
+    color: var(--ink);
+}
+
+body.haus-theme .dropdown-menu {
+    border-radius: 14px;
+    border: 1px solid var(--line2);
+    background: var(--glass2);
+    box-shadow: var(--shadow);
+}
+
+body.haus-theme .dropdown-item {
+    color: var(--muted);
+}
+
+body.haus-theme .avatar {
+    border: 1px solid var(--line2);
+}
+
+/* Cards and section containers */
+body.haus-theme .card,
+body.haus-theme .accordion-item,
+body.haus-theme .list-group-item,
+body.haus-theme .modal-content,
+body.haus-theme .offcanvas {
+    border-radius: var(--r);
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(10, 14, 26, 0.9), rgba(10, 14, 26, 0.52));
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.28);
+    color: var(--ink);
+}
+
+body.haus-theme .card-header,
+body.haus-theme .card-footer,
+body.haus-theme .list-group-item,
+body.haus-theme .accordion-button {
+    background: rgba(0, 0, 0, 0.12);
+    border-color: var(--line);
+    color: var(--ink);
+}
+
+body.haus-theme .card-header h1,
+body.haus-theme .card-header h2,
+body.haus-theme .card-header h3 {
+    margin-bottom: 0;
+    font-size: clamp(1.2rem, 2.2vw, 1.9rem);
+}
+
+/* Buttons and badges */
+body.haus-theme .btn {
+    border-radius: 12px;
+    border: 1px solid var(--line2);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--ink);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    font-size: 0.73rem;
+}
+
+body.haus-theme .btn:hover,
+body.haus-theme .btn:focus-visible {
+    border-color: rgba(53, 219, 255, 0.45);
+    box-shadow: 0 0 0 3px rgba(53, 219, 255, 0.12);
+    color: var(--ink);
+}
+
+body.haus-theme .btn-primary,
+body.haus-theme .btn-success,
+body.haus-theme .btn-green,
+body.haus-theme .btn-cyan {
+    background: linear-gradient(180deg, rgba(53, 219, 255, 0.2), rgba(53, 219, 255, 0.06));
+    border-color: rgba(53, 219, 255, 0.45);
+}
+
+body.haus-theme .btn-secondary,
+body.haus-theme .btn-light {
+    background: linear-gradient(180deg, rgba(214, 139, 255, 0.2), rgba(214, 139, 255, 0.06));
+    border-color: rgba(214, 139, 255, 0.4);
+}
+
+body.haus-theme .badge,
+body.haus-theme .ribbon {
+    border: 1px solid var(--line2);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+/* Forms */
+body.haus-theme .form-control,
+body.haus-theme .form-select,
+body.haus-theme .ts-control,
+body.haus-theme .tomselected {
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.26);
+    color: var(--ink);
+}
+
+body.haus-theme .form-control:focus,
+body.haus-theme .form-select:focus,
+body.haus-theme .ts-control.focus {
+    border-color: rgba(53, 219, 255, 0.45);
+    box-shadow: 0 0 0 3px rgba(53, 219, 255, 0.12);
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--ink);
+}
+
+body.haus-theme .form-control::placeholder {
+    color: var(--muted2);
+}
+
+body.haus-theme label,
+body.haus-theme .form-label,
+body.haus-theme .form-help {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+/* Tables */
+body.haus-theme .table {
+    --tblr-table-bg: transparent;
+    --tblr-table-striped-bg: rgba(255, 255, 255, 0.02);
+    --tblr-table-border-color: var(--line);
+    color: var(--ink);
+}
+
+body.haus-theme .table th {
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.7rem;
+}
+
+/* Informational UI */
+body.haus-theme .alert {
+    border-radius: 14px;
+    border: 1px solid var(--line2);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--ink);
+}
+
+body.haus-theme .breadcrumb {
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    display: inline-flex;
+    padding: 0.4rem 0.85rem;
+    gap: 0.25rem;
+    background: rgba(0, 0, 0, 0.16);
+}
+
+body.haus-theme .breadcrumb a,
+body.haus-theme .breadcrumb-item.active {
+    color: var(--muted);
+}
+
+body.haus-theme .progress {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+body.haus-theme .progress-bar {
+    background: linear-gradient(90deg, rgba(53, 219, 255, 0.9), rgba(214, 139, 255, 0.75));
+}
+
+/* Footer */
+body.haus-theme .footer {
+    margin-top: 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    background: linear-gradient(180deg, rgba(10, 14, 26, 0.85), rgba(10, 14, 26, 0.55));
+    color: var(--muted2);
+}
+
+body.haus-theme .footer .link-secondary,
+body.haus-theme .footer a {
+    color: var(--muted);
+}
+
+body.haus-theme .footer a:hover {
+    color: var(--ink);
+}
+
+/* Keep legacy utility classes readable on dark background */
+body.haus-theme .text-muted,
+body.haus-theme .text-secondary {
+    color: var(--muted) !important;
+}
+
+body.haus-theme .bg-light-lt,
+body.haus-theme .bg-light {
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: var(--ink) !important;
+}
+
+body.haus-theme hr {
+    border-color: var(--line);
+    opacity: 1;
+}
+
+/* SANIC landing blocks used on order index */
+body.haus-theme .th-section {
+    margin-top: 22px;
+}
+
+body.haus-theme .th-card {
+    position: relative;
+    border-radius: var(--r2);
+    border: 1px solid var(--line);
+    background:
+        radial-gradient(900px 520px at 25% 0%, rgba(53, 219, 255, 0.14), transparent 55%),
+        radial-gradient(760px 520px at 90% 20%, rgba(214, 139, 255, 0.12), transparent 55%),
+        linear-gradient(180deg, rgba(10, 14, 26, 0.86), rgba(10, 14, 26, 0.54));
+    backdrop-filter: blur(18px);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+body.haus-theme .th-hero-main {
+    padding: 22px 22px 18px;
+}
+
+body.haus-theme .th-kicker {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+}
+
+body.haus-theme .th-kicker::after {
+    content: "";
+    height: 1px;
+    width: 72px;
+    background: linear-gradient(90deg, rgba(53, 219, 255, 0), rgba(53, 219, 255, 0.65), rgba(214, 139, 255, 0));
+    opacity: 0.9;
+}
+
+body.haus-theme .th-h1 {
+    margin: 10px 0 10px;
+    font-family: Montserrat, Inter, sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.02;
+    font-size: clamp(34px, 4vw, 60px);
+    text-shadow: 0 0 24px rgba(53, 219, 255, 0.1), 0 0 44px rgba(214, 139, 255, 0.08);
+}
+
+body.haus-theme .th-h1 .grad {
+    background: conic-gradient(from 210deg, var(--cyan), var(--mag), var(--amber), var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+body.haus-theme .th-lead {
+    margin: 0;
+    color: var(--muted);
+    max-width: 52ch;
+    font-size: 14px;
+    line-height: 1.75;
+}
+
+body.haus-theme .th-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+body.haus-theme .th-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--line2);
+    background: rgba(255, 255, 255, 0.04);
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+body.haus-theme .th-btn:hover {
+    border-color: rgba(53, 219, 255, 0.45);
+    box-shadow: 0 0 0 3px rgba(53, 219, 255, 0.12);
+}
+
+body.haus-theme .th-btn.primary {
+    background: linear-gradient(180deg, rgba(53, 219, 255, 0.2), rgba(53, 219, 255, 0.06));
+    border-color: rgba(53, 219, 255, 0.45);
+}
+
+body.haus-theme .th-metrics {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+body.haus-theme .th-metric {
+    padding: 12px 12px 10px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.18);
+}
+
+body.haus-theme .th-metric .n {
+    font-family: Montserrat, Inter, sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 22px;
+}
+
+body.haus-theme .th-metric .l {
+    margin-top: 2px;
+    color: var(--muted2);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 900;
+}
+
+body.haus-theme .th-section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 18px 2px 10px;
+}
+
+body.haus-theme .th-h2 {
+    margin: 0;
+    font-family: Montserrat, Inter, sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 16px;
+}
+
+body.haus-theme .th-sub {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    max-width: 68ch;
+}
+
+body.haus-theme .th-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 12px;
+}
+
+body.haus-theme .th-item {
+    position: relative;
+    grid-column: span 6;
+    border-radius: var(--r);
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(10, 14, 26, 0.9), rgba(10, 14, 26, 0.52));
+    overflow: hidden;
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.28);
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
+}
+
+body.haus-theme .th-item:hover {
+    border-color: rgba(236, 244, 255, 0.3);
+}
+
+body.haus-theme .th-item-top {
+    padding: 14px 14px 10px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+body.haus-theme .th-tag {
+    font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted2);
+}
+
+body.haus-theme .th-badge {
+    padding: 5px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(0, 0, 0, 0.18);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+body.haus-theme .th-item-body {
+    padding: 0 14px 14px;
+}
+
+body.haus-theme .th-item h3 {
+    margin: 0 0 6px;
+    font-family: Montserrat, Inter, sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+body.haus-theme .th-item p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+body.haus-theme .th-item-foot {
+    margin-top: auto;
+    padding: 12px 14px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+body.haus-theme .th-meta {
+    color: var(--muted2);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 900;
+}
+
+body.haus-theme .th-go {
+    color: var(--ink);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+body.haus-theme .th-go:hover {
+    color: var(--cyan);
+}
+
+@media (max-width: 980px) {
+    body.haus-theme .navbar {
+        border-radius: 14px;
+    }
+
+    body.haus-theme .th-item {
+        grid-column: span 12;
+    }
+}
+
+@media (max-width: 640px) {
+    body.haus-theme .container-xl {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    body.haus-theme .th-h1 {
+        font-size: clamp(28px, 9vw, 46px);
+    }
+
+    body.haus-theme .th-metrics {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .haus-scan,
+    .haus-noise {
+        animation: none !important;
+    }
+}

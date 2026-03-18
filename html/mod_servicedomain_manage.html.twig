@@ -1,0 +1,476 @@
+{% if order.status == 'active' or order.status == 'failed_renew' %}
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="d-flex align-items-center justify-content-between w-100">
+          <div>
+            <h1 class="mb-1">{{ 'Manage'|trans }} {{ service.domain }}</h1>
+          </div>
+
+          <div class="btn-list">
+            <button class="btn btn-danger btn-sm icon-link" type="button" id="domain-unlock" {% if service.locked == 0 %}style="display:none;"{% endif %}>
+              {{ 'Unlock'|trans }}
+            </button>
+            <button class="btn btn-indigo btn-sm icon-link" type="button" id="domain-lock" {% if service.locked == 1 %}style="display:none;"{% endif %}>
+              {{ 'Lock'|trans }}
+            </button>
+
+            <button class="btn btn-warning btn-sm" type="button" id="domain-disable-pp" {% if service.privacy == 0 %}style="display:none;"{% endif %}>
+              {{ 'Disable privacy'|trans }}
+            </button>
+            <button class="btn btn-secondary btn-sm" type="button" id="domain-enable-pp" {% if service.privacy == 1 %}style="display:none;"{% endif %}>
+              {{ 'Enable privacy'|trans }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body">
+
+        <div class="datagrid mb-4">
+          <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'Name'|trans }}</div>
+            <div class="datagrid-content">
+              <a target="_blank" href="http://{{ service.domain }}">{{ service.domain }}</a>
+            </div>
+          </div>
+
+          <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'Registered on'|trans }}</div>
+            <div class="datagrid-content">{{ service.registered_at|date('Y-m-d H:i:s') }}</div>
+          </div>
+    
+          <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'Expires on'|trans }}</div>
+            <div class="datagrid-content">{{ service.expires_at|date('Y-m-d H:i:s') }}</div>
+          </div>
+          
+          <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'Protection'|trans }}
+            <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'Domain locking is a security feature which prevents your domain name from being transferred without first unlocking it. When this is enabled, a domain cannot be transferred even with the transfer code.'|trans }}" style="cursor: help;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-sm"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 17l0 .01" /><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" /></svg>
+            </span></div>
+            <div class="datagrid-content"><span id="domain-lock-badge" class="badge {% if service.locked == 1 %}bg-green text-green-fg{% else %}bg-yellow text-yellow-fg{% endif %}">{% if service.locked == 1 %}{{ 'Locked'|trans }}{% else %}{{ 'Unlocked'|trans }}{% endif %}</span></div>
+          </div>
+          
+          <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'Privacy protection'|trans }}
+            <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'If you would like to hide domain contact information which is shown on WHOIS you can enable privacy protection. Once domain privacy protection is enabled no one will know who registered this service. And once you decide to disable privacy protection, information that is listed above on "Update Domain Contact Details" section will be seen on domain WHOIS again.'|trans }}" style="cursor: help;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-sm"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 17l0 .01" /><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" /></svg>
+            </span></div>
+            <div class="datagrid-content"><span id="domain-privacy-badge" class="badge {% if service.privacy == 1 %}bg-green text-green-fg{% else %}bg-secondary text-secondary-fg{% endif %}">{% if service.privacy == 1 %}{{ 'Enabled'|trans }}{% else %}{{ 'Disabled'|trans }}{% endif %}</span></div>
+          </div>
+          
+          <div class="datagrid-item">
+            <div class="datagrid-title">{{ 'Transfer code'|trans }}
+            <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ 'Most domain names (except a few top-level domains like .EU and .UK) have a Domain Secret Key/Authorization Code (EPP Code) associated with them. This code is typically required when transferring the domain to a new registrar.'|trans }}" style="cursor: help;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-sm"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 17l0 .01" /><path d="M12 13.5a1.5 1.5 0 0 1 1 -1.5a2.6 2.6 0 1 0 -3 -4" /></svg>
+            </span></div>
+            <div class="datagrid-content d-flex align-items-center gap-2">
+
+              <span id="epp-code-value" class="font-monospace text-muted">
+                ••••••••••••
+              </span>
+
+              <button
+                id="epp-code-reveal"
+                type="button"
+                class="btn btn-sm btn-outline-secondary">
+                {{ 'Copy'|trans }}
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="row row-cards">
+            <div class="col-12 col-lg-6">
+              <div class="card mb-4" id="nameservers">
+                <div class="card-header">
+                    <div class="d-flex flex-column">
+                      <h3 class="card-title mb-1">{{ 'Nameservers'|trans }}</h3>
+                      <div class="text-muted small">
+                        {{ 'If you would like to host this domain with another company you can update nameservers.'|trans }}
+                      </div>
+                    </div>
+                </div>
+                <div class="card-body">
+
+                  <form class="api-form" action="{{ 'api/client/servicedomain/update_nameservers'|link }}" data-api-msg="{{ 'Nameservers updated'|trans }}" method="post">
+                    <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}"/>
+                    <input type="hidden" name="order_id" value="{{ order.id }}">
+
+                    <div class="row g-3">
+                      <div class="col-12 col-md-6">
+                        <label for="ns1" class="form-label">{{ 'Nameserver 1'|trans }}</label>
+                        <input class="form-control" type="text" name="ns1" id="ns1" value="{{ request.ns1|default(service.ns1) }}" autocapitalize="off" required>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label for="ns2" class="form-label">{{ 'Nameserver 2'|trans }}</label>
+                        <input class="form-control" type="text" name="ns2" id="ns2" value="{{ request.ns2|default(service.ns2) }}" autocapitalize="off" required>
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label for="ns3" class="form-label">{{ 'Nameserver 3'|trans }}</label>
+                        <input class="form-control" type="text" name="ns3" id="ns3" value="{{ request.ns3|default(service.ns3) }}" autocapitalize="off">
+                      </div>
+                      <div class="col-12 col-md-6">
+                        <label for="ns4" class="form-label">{{ 'Nameserver 4'|trans }}</label>
+                        <input class="form-control" type="text" name="ns4" id="ns4" value="{{ request.ns4|default(service.ns4) }}" autocapitalize="off">
+                      </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between mt-4">
+                      <div class="text-muted small">
+                        {{ 'Changes can take some time to propagate.'|trans }}
+                      </div>
+                      <button class="btn btn-primary" type="submit">{{ 'Update'|trans }}</button>
+                    </div>
+                  </form>
+
+                </div>
+              </div>
+
+              {% if guest.extension_is_on({"mod":"domainx"}) %}
+              <div class="card mb-4" id="dnssec">
+                <div class="card-header">
+                  <div class="d-flex flex-column">
+                    <h3 class="card-title mb-1">DNSSEC <span class="card-subtitle">Create a DS Record</span></h3>
+                    <div class="text-muted small">
+                      {{ 'Enable DNSSEC by adding DS records to improve your domain’s security.'|trans }}
+                    </div>
+                  </div>
+                </div>
+                <div class="card-body">
+                    <form class="api-form" action="{{ 'api/client/domainx/ds_add'|link }}" data-api-msg="{{ 'DS record added'|trans }}" method="post">
+                        <input type="hidden" name="domain" value="{{ service.domain }}" />
+                        <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}"/>
+                        <input type="hidden" name="order_id" value="{{ order.id }}">
+
+                        <div class="form-group row mb-2">
+                            <label for="keytag1" class="col-md-4 col-form-label required">Key tag</label>
+                            <div class="col-md-6">
+                                <input name="keyTag" type="text" maxlength="65535" class="form-control" id="keytag1" required />
+                            </div>
+                        </div>
+                        <div class="form-group row mb-2">
+                            <label for="alg1" class="col-md-4 col-form-label required">Algorithm</label>
+                            <div class="col-md-6">
+                                <select name="alg" data-supported="True" class="form-control form-select" id="alg1" required>
+                                    <option value="8">RSA/SHA-256 (8)</option>
+                                    <option value="13">ECDSA Curve P-256 with SHA-256 (13)</option>
+                                    <option value="14">ECDSA Curve P-384 with SHA-384 (14)</option>
+                                    <option value="15">Ed25519 (15)</option>
+                                    <option value="16">Ed448 (16)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-2">
+                            <label for="digestType" class="col-md-4 col-form-label required">Digest type</label>
+                            <div class="col-md-6">
+                                <select name="digestType" class="form-control form-select" id="digestType" required>
+                                    <option value="2">SHA-256 (2)</option>
+                                    <option value="4">SHA-384 (4)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row mb-2">
+                            <label for="digest1" class="col-md-4 col-form-label required">Digest</label>
+                            <div class="col-md-6">
+                                <textarea name="digest" class="form-control" rows="2" id="digest1" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                Create DS Record
+                            </button>
+                        </div>
+                    </form>
+                </div>
+              </div>
+              {% endif %}
+          </div>
+
+          <div class="col-12 col-lg-6">
+              <div class="card" id="whois">
+                <div class="card-header">
+                    <div class="d-flex flex-column">
+                      <h3 class="card-title mb-1">{{ 'WHOIS Contact Details'|trans }}</h3>
+                      <div class="text-muted small">
+                        {{ 'Domain contact details will be displayed once someone will check WHOIS output (which is public) of your service. This will update Technical, Billing and Admin contacts for this service. You can enable domain privacy protection if you want to hide your public WHOIS information.'|trans }}
+                      </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                  <form class="api-form" method="post" action="{{ 'api/client/servicedomain/update_contacts'|link }}" data-api-msg="{{ 'Contact details updated'|trans }}">
+                    <input type="hidden" name="CSRFToken" value="{{ CSRFToken }}"/>
+                    <input type="hidden" name="order_id" value="{{ order.id }}">
+
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                          <label for="whois_first_name" class="form-label">{{ 'First Name'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[first_name]" id="whois_first_name" value="{{ request.first_name|default(service.contact.first_name) }}" required>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_last_name" class="form-label">{{ 'Last Name'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[last_name]" id="whois_last_name" value="{{ request.last_name|default(service.contact.last_name) }}" required>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_email" class="form-label">{{ 'Email'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[email]" id="whois_email" value="{{ request.email|default(service.contact.email) }}" autocapitalize="off" required>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_company" class="form-label">{{ 'Company'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[company]" id="whois_company" value="{{ request.company|default(service.contact.company) }}">
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_address1" class="form-label">{{ 'Address Line 1'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[address1]" id="whois_address1" value="{{ request.address1|default(service.contact.address1) }}" required>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_address2" class="form-label">{{ 'Address Line 2'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[address2]" id="whois_address2" value="{{ request.address2|default(service.contact.address2) }}">
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_city" class="form-label">{{ 'City'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[city]" id="whois_city" value="{{ request.city|default(service.contact.city) }}" required>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_state" class="form-label">{{ 'State'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[state]" id="whois_state" value="{{ request.state|default(service.contact.state) }}" required>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_postcode" class="form-label">{{ 'Zip'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[postcode]" id="whois_postcode" value="{{ request.postcode|default(service.contact.postcode) }}" required>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_country" class="form-label required">{{ 'Country'|trans }}</label>
+                          <select class="form-select" name="contact[country]" id="whois_country" required>
+                            <option value="">{{ '-- Select country --'|trans }}</option>    
+                            {% set selected_country = request.country|default(service.contact.country) %}
+                            {% for val, label in guest.system_countries %}
+                              <option value="{{ val }}" {% if val == selected_country %}selected="selected"{% endif %}>
+                                {{ label|e }}
+                              </option>
+                            {% endfor %}
+                          </select>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_phone_cc" class="form-label">{{ 'Phone Country Code'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[phone_cc]" id="whois_phone_cc" value="{{ request.phone_cc|default(service.contact.phone_cc) }}" required>
+                        </div>
+
+                        <div class="col-12 col-md-6">
+                          <label for="whois_phone" class="form-label">{{ 'Phone number'|trans }}</label>
+                          <input class="form-control" type="text" name="contact[phone]" id="whois_phone" value="{{ request.phone|default(service.contact.phone) }}" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button class="btn btn-primary" type="submit">{{ 'Update'|trans }}</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+{% block js %}
+<script>
+const DOMAIN_LOCKED_TEXT    = "{{ 'Locked'|trans }}";
+const DOMAIN_UNLOCKED_TEXT  = "{{ 'Unlocked'|trans }}";
+const PRIVACY_ENABLED_TEXT  = "{{ 'Enabled'|trans }}";
+const PRIVACY_DISABLED_TEXT = "{{ 'Disabled'|trans }}";
+
+const TXT_REVEAL  = "{{ 'Reveal'|trans }}";
+const TXT_LOADING = "{{ 'Loading...'|trans }}";
+const TXT_COPY    = "{{ 'Copy'|trans }}";
+const TXT_COPIED  = "{{ 'Copied'|trans }}";
+const TXT_FAILED  = "{{ 'Failed'|trans }}";
+const MASKED_EPP  = "••••••••••••";
+
+let eppHideTimer = null;
+
+function resetEppUI() {
+    const value = document.getElementById('epp-code-value');
+    const btn   = document.getElementById('epp-code-reveal');
+
+    value.textContent = MASKED_EPP;
+    value.classList.add('text-muted');
+    value.classList.remove('fw-bold', 'text-dark');
+
+    btn.disabled = false;
+    btn.classList.remove('btn-outline-success');
+    btn.classList.add('btn-outline-secondary');
+    btn.textContent = TXT_REVEAL;
+
+    delete btn.dataset.epp;
+}
+
+function scheduleEppHide() {
+    if (eppHideTimer) clearTimeout(eppHideTimer);
+    eppHideTimer = setTimeout(resetEppUI, 30000); // 30 sec
+}
+
+function setLockBadge(isLocked) {
+    const b = document.getElementById('domain-lock-badge');
+
+    b.classList.toggle('bg-green', isLocked);
+    b.classList.toggle('text-green-fg', isLocked);
+
+    b.classList.toggle('bg-yellow', !isLocked);
+    b.classList.toggle('text-yellow-fg', !isLocked);
+
+    b.textContent = isLocked ? DOMAIN_LOCKED_TEXT : DOMAIN_UNLOCKED_TEXT;
+}
+
+function setPrivacyBadge(isEnabled) {
+    const b = document.getElementById('domain-privacy-badge');
+
+    b.classList.toggle('bg-green', isEnabled);
+    b.classList.toggle('text-green-fg', isEnabled);
+
+    b.classList.toggle('bg-secondary', !isEnabled);
+    b.classList.toggle('text-secondary-fg', !isEnabled);
+
+    b.textContent = isEnabled ? PRIVACY_ENABLED_TEXT : PRIVACY_DISABLED_TEXT;
+}
+
+function toggleDisplay(idA, idB) {
+    const a = document.getElementById(idA);
+    const b = document.getElementById(idB);
+
+    a.style.display = (a.style.display === 'none') ? '' : 'none';
+    b.style.display = (b.style.display === 'none') ? '' : 'none';
+}
+
+function apiFailToast(err) {
+    let msg = TXT_FAILED;
+    if (typeof err === 'string' && err.trim()) msg = err.trim();
+    else if (err && typeof err === 'object') {
+        const maybe = err.message || err.error || err.msg;
+        if (typeof maybe === 'string' && maybe.trim()) msg = maybe.trim();
+    }
+    FOSSBilling.message(msg);
+}
+
+document.getElementById('domain-lock').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    API.client.post(
+        'servicedomain/lock',
+        { order_id: {{ order.id }} },
+        () => {
+            FOSSBilling.message('Domain locked');
+            toggleDisplay('domain-lock', 'domain-unlock');
+            setLockBadge(true);
+        },
+        (err) => apiFailToast(err)
+    );
+});
+
+document.getElementById('domain-unlock').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    API.client.post(
+        'servicedomain/unlock',
+        { order_id: {{ order.id }} },
+        () => {
+            FOSSBilling.message('Domain unlocked');
+            toggleDisplay('domain-lock', 'domain-unlock');
+            setLockBadge(false);
+        },
+        (err) => apiFailToast(err)
+    );
+});
+
+document.getElementById('domain-enable-pp').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    API.client.post(
+        'servicedomain/enable_privacy_protection',
+        { order_id: {{ order.id }} },
+        () => {
+            FOSSBilling.message('Privacy Protection enabled');
+            toggleDisplay('domain-enable-pp', 'domain-disable-pp');
+            setPrivacyBadge(true);
+        },
+        (err) => apiFailToast(err)
+    );
+});
+
+document.getElementById('domain-disable-pp').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    API.client.post(
+        'servicedomain/disable_privacy_protection',
+        { order_id: {{ order.id }} },
+        () => {
+            FOSSBilling.message('Privacy Protection disabled');
+            toggleDisplay('domain-enable-pp', 'domain-disable-pp');
+            setPrivacyBadge(false);
+        },
+        (err) => apiFailToast(err)
+    );
+});
+
+document.getElementById('epp-code-reveal').addEventListener('click', function (event) {
+    event.preventDefault();
+
+    const btn   = this;
+    const value = document.getElementById('epp-code-value');
+
+    btn.disabled = true;
+    btn.textContent = TXT_LOADING;
+
+    API.client.post(
+        'servicedomain/get_transfer_code',
+        { order_id: {{ order.id }} },
+        (result) => {
+            const code = (typeof result === 'string' && result.trim()) ? result.trim() : '************';
+
+            value.textContent = code;
+            value.classList.remove('text-muted');
+            value.classList.add('fw-bold', 'text-dark');
+
+            Promise.resolve(navigator.clipboard && navigator.clipboard.writeText
+                ? navigator.clipboard.writeText(code)
+                : Promise.reject(new Error('Clipboard not available')))
+                .then(() => {
+                    btn.textContent = TXT_COPIED;
+                    btn.classList.remove('btn-outline-secondary');
+                    btn.classList.add('btn-outline-success');
+                })
+                .catch(() => {
+                    btn.textContent = TXT_COPY;
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    scheduleEppHide();
+                });
+        },
+        (err) => {
+            apiFailToast(err);
+            btn.disabled = false;
+            btn.textContent = TXT_FAILED;
+            setTimeout(() => { btn.textContent = TXT_REVEAL; }, 1500);
+        }
+    );
+});
+</script>
+{% endblock %}
+
+{% endif %}
